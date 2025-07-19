@@ -1,5 +1,6 @@
 import { FC } from "react";
 import {Brain} from "lucide-react"
+import ThemeSwitcher from "./ThemeSwitcher";
 
 const Navigation: FC = () => {
     return (
@@ -23,6 +24,7 @@ const Navigation: FC = () => {
               <Brain className="h-4 w-4" />
               <span>AI-Powered Analysis</span>
             </div>
+            <ThemeSwitcher />
           </div>
         </div>
       </div>
