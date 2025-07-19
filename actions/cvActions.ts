@@ -36,9 +36,8 @@ export const analyzeCVAction = actionClient
   )
   .action(async ({ parsedInput }) => {
     try {
-      // Call OpenAI to analyze the CV content
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini', // or another model you prefer
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
