@@ -15,7 +15,6 @@ const HeroWrapper: FC = () => {
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-8">
-                    {/* Upload Section */}
                     <div className="space-y-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
                         <div>
                             <h2 className="text-2xl font-bold mb-2">Upload Resume</h2>
@@ -27,7 +26,6 @@ const HeroWrapper: FC = () => {
                         TODO FILE UPLOAD
                     </div>
 
-                    {/* Placeholder Section */}
                     <div className="space-y-6 animate-slide-up" style={{ animationDelay: '0.4s' }}>
                         <div className="bg-gradient-to-br from-muted/30 to-muted/10 rounded-2xl p-8 text-center border-2 border-dashed border-muted-foreground/20 animate-scale-in">
                             <Brain className="h-16 w-16 text-muted-foreground mx-auto mb-4 animate-pulse" />
