@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, useState } from 'react';
-import { Brain } from 'lucide-react';
+import { Brain, Loader2 } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Button } from '@/components/ui/button';
 import { uploadCVAction } from '@/actions/cvActions';
@@ -63,7 +63,7 @@ const HeroWrapper: FC = () => {
                   disabled={status === 'executing'}
                   className="mt-2"
                 >
-                  {status === 'executing' ? 'Uploading...' : 'Submit for Analysis'}
+                  {status === 'executing' ? <Loader2 className='animate-spin w-8 h-8' />: 'Submit for Analysis'}
                 </Button>
               </div>
             )}
