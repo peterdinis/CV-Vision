@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { actionClient } from '@/lib/safe-action';
 import { openai } from '@/lib/openai';
+import pdfParse from 'pdf-parse';
 
 export const uploadCVAction = actionClient
     .inputSchema(z.object({}))
@@ -66,7 +67,19 @@ export const analyzeCVAction = actionClient
         } catch (error) {
             throw new Error(
                 'Failed to analyze CV: ' +
-                    (error instanceof Error ? error.message : String(error))
+                (error instanceof Error ? error.message : String(error))
             );
         }
+    });
+
+export const extractTextAction = actionClient
+    .inputSchema(z.object({ file: z.instanceof(File) }))
+    .action(async ({ parsedInput }) => {
+        if (parsedInput.file.type !== 'application/pdf') {
+            throw new Error('Only PDF parsedInputs supported for text extraction');
+        }
+
+        const arrayBuffer = await parsedInput.file.arrayBuffer();
+        const data = await pdfParse(Buffer.from(arrayBuffer));
+        return { text: data.text };
     });
