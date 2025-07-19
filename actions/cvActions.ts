@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { actionClient } from '@/lib/safe-action';
 import { openai } from '@/lib/openai';
-import pdfjsLib from 'pdfjs-dist';
+import pdfParse from 'pdf-parse';
 
 export const uploadCVAction = actionClient
     .inputSchema(z.object({}))
@@ -70,29 +70,4 @@ export const analyzeCVAction = actionClient
                 (error instanceof Error ? error.message : String(error))
             );
         }
-    });
-
-export const extractTextAction = actionClient
-    .inputSchema(z.object({ file: z.instanceof(File) }))
-    .action(async ({ parsedInput }) => {
-        const loadingTask = pdfjsLib.getDocument({
-            data: parsedInput as unknown as ArrayBuffer
-        });
-
-        const pdf = await loadingTask.promise;
-
-        let fullText = '';
-
-        for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-
-            const pageText = textContent.items
-                .map((item: any) => item.str)
-                .join(' ');
-
-            fullText += pageText + '\n';
-        }
-
-        return fullText;
     });
