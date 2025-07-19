@@ -1,8 +1,11 @@
 'use server';
 
+import { z } from 'zod';
 import { actionClient } from '@/lib/safe-action';
 
-export const uploadCVAction = actionClient.action(async () => {
+export const uploadCVAction = actionClient
+.inputSchema(z.object({}))
+.action(async ({parsedInput}) => {
     const formData = new FormData();
     const file = formData!.get('resume') as File | null;
     if (!file) {
