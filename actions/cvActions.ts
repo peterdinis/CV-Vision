@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { actionClient } from '@/lib/safe-action';
 import { openai } from '@/lib/openai';
-import pdfParse from 'pdf-parse';
+import pdfjsLib from 'pdfjs-dist';
 
 export const uploadCVAction = actionClient
     .inputSchema(z.object({}))
@@ -75,11 +75,24 @@ export const analyzeCVAction = actionClient
 export const extractTextAction = actionClient
     .inputSchema(z.object({ file: z.instanceof(File) }))
     .action(async ({ parsedInput }) => {
-        if (parsedInput.file.type !== 'application/pdf') {
-            throw new Error('Only PDF parsedInputs supported for text extraction');
+        const loadingTask = pdfjsLib.getDocument({
+            data: parsedInput as unknown as ArrayBuffer
+        });
+
+        const pdf = await loadingTask.promise;
+
+        let fullText = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+
+            const pageText = textContent.items
+                .map((item: any) => item.str)
+                .join(' ');
+
+            fullText += pageText + '\n';
         }
 
-        const arrayBuffer = await parsedInput.file.arrayBuffer();
-        const data = await pdfParse(Buffer.from(arrayBuffer));
-        return { text: data.text };
+        return fullText;
     });
