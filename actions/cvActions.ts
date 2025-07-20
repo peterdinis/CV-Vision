@@ -1,79 +1,44 @@
 'use server';
 
-import { z } from 'zod';
 import { actionClient } from '@/lib/safe-action';
 import { openai } from '@/lib/openai';
+import { extractTextFromPDF } from './utils/pdfHelperFunctions';
+import { cvSchema } from '@/schemas/cvSchema';
 
-export const uploadCVAction = actionClient
-    .inputSchema(z.object({}))
-    .action(async () => {
-        const formData = new FormData();
-        const file = formData!.get('resume') as File | null;
-        if (!file) {
-            throw new Error('No file provided');
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-            throw new Error('File too large (max 5MB)');
-        }
-
-        if (
-            ![
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            ].includes(file.type)
-        ) {
-            throw new Error('Unsupported file type');
-        }
-
-        return {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-        };
-    });
-
-export const analyzeCVAction = actionClient
-  .inputSchema(
-    z.object({
-      content: z.string().min(1, 'CV content is required'),
-    })
-  )
+export const analyzeAndUploadCVAction = actionClient
+  .inputSchema(cvSchema)
   .action(async ({ parsedInput }) => {
-    console.log('[analyzeCVAction] Received input:', parsedInput);
-    const formData = new FormData();
-        const file = formData!.get('resume') as File | null;
     try {
+      const buffer = Buffer.from(await parsedInput.file.arrayBuffer());
+      const text = await extractTextFromPDF(buffer);
+
+      if (!text || text.length < 100) {
+        throw new Error('Resume content is too short or could not be parsed.');
+      }
+
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
             content:
-              'You are a helpful assistant that analyzes resumes and gives improvement suggestions.',
+              'You are a helpful assistant that provides ONLY clear, actionable tips and suggestions to improve a resume. ' +
+              'Do NOT include the resume content or a summary, only the improvement points. ' +
+              'Focus on content quality, clarity, structure, formatting, and relevance. Be constructive and concise.',
           },
           {
             role: 'user',
-            content: `Please analyze the following resume text and provide feedback, pros, cons, and tips:\n\n${file?.text}`,
+            content: `Here is a resume text:\n\n${text}\n\nPlease provide ONLY a list of specific suggestions to improve this resume.`,
           },
         ],
-        temperature: 0.7,
+        max_tokens: 600,
       });
 
-      console.log('[analyzeCVAction] OpenAI raw response:', completion);
-
-      const analysis =
-        completion.choices[0]?.message?.content || 'No analysis returned.';
-
-      console.log('[analyzeCVAction] Parsed analysis:', analysis);
+      const analysis = completion.choices?.[0]?.message?.content || 'No suggestions returned.';
 
       return { analysis };
-    } catch (error) {
-      console.error('[analyzeCVAction] Error during analysis:', error);
-      throw new Error(
-        'Failed to analyze CV: ' +
-          (error instanceof Error ? error.message : String(error))
-      );
+    } catch (error: any) {
+      console.error('[CV Action] Failed to analyze resume:', error);
+      throw new Error(error?.message || 'Unexpected error while analyzing your resume.');
     }
   });
