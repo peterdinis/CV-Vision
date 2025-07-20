@@ -16,12 +16,10 @@ export const analyzeAndUploadCVAction = actionClient
       const buffer = Buffer.from(await parsedInput.file.arrayBuffer());
       const text = await extractTextFromPDF(buffer);
 
-      console.log('[CV Action] Extracted text length:', text.length);
-
       if (!text || text.length < 100) {
         throw new Error('Resume content is too short or could not be parsed.');
       }
-      
+
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [
