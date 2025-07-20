@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { FileUploader } from '../uploads/FileUploader';
 import { analyzeCVAction } from '@/actions/cvActions';
+import { Badge } from '../ui/badge';
 
 const HeroWrapper: FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -117,15 +118,9 @@ const HeroWrapper: FC = () => {
 
               {!analysis && (
                 <div className="flex flex-wrap justify-center gap-2 text-sm">
-                  <span className="bg-primary/10 text-primary rounded-full px-3 py-1">
-                    Pros & Cons
-                  </span>
-                  <span className="bg-accent/10 text-accent rounded-full px-3 py-1">
-                    Expert Tips
-                  </span>
-                  <span className="bg-success/10 text-success rounded-full px-3 py-1">
-                    Score Rating
-                  </span>
+                  <Badge variant={"default"} className='text-sky-100 dark:text-black rounded-full px-3 py-1'>Pros & Cons</Badge>
+                  <Badge variant={"destructive"} className='text-sky-100 dark:text-black rounded-full px-3 py-1'> Expert Tips</Badge>
+                  <Badge variant={"outline"} className='text-black dark:text-white rounded-full px-3 py-1'> Score Rating</Badge>
                 </div>
               )}
             </div>
