@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Ubuntu} from 'next/font/google';
+import { Ubuntu } from 'next/font/google';
 import './globals.css';
 import Navigation from '@/components/shared/Navigation';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
