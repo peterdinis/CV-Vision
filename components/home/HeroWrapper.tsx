@@ -19,7 +19,8 @@ const HeroWrapper: FC = () => {
         {
             onSuccess: (data) => {
                 console.log('[analyzeCV] Success:', data);
-                setAnalysis(data.data.analysis);
+                setAnalysis(data.input.content);
+                console.log("D", data)
                 toast.success('✅ CV analysis complete!');
             },
             onError: (err) => {
@@ -41,24 +42,15 @@ const HeroWrapper: FC = () => {
 
         console.log('[extractText] Response status:', res.status);
 
-        // Warning: can't log res.json() twice; clone the response for logging
-        const resClone = res.clone();
-        try {
-            const json = await resClone.json();
-            console.log('[extractText] Response JSON:', json);
-        } catch (e) {
-            console.error('[extractText] Failed to parse JSON response:', e);
-        }
+        const data = await res.json();  // načítame raz
+
+        console.log('[extractText] Response JSON:', data);
 
         if (!res.ok) {
-            const errorData = await res.json();
-            console.error('[extractText] Error extracting text:', errorData.error);
-            throw new Error(errorData.error || 'Failed to extract text');
+            console.error('[extractText] Error extracting text:', data.error);
+            throw new Error(data.error || 'Failed to extract text');
         }
-
-        const data = await res.json();
-        console.log('[extractText] Extracted text length:', data.text?.length);
-        return data.text as string;
+        return data.extractedText as string;
     };
 
     const handleUploadAndAnalyze = async () => {
@@ -137,7 +129,7 @@ const HeroWrapper: FC = () => {
                                     className='mt-2'
                                 >
                                     {isExtracting ||
-                                    analyzingStatus === 'executing' ? (
+                                        analyzingStatus === 'executing' ? (
                                         <Loader2 className='h-8 w-8 animate-spin' />
                                     ) : (
                                         'Submit for Analysis'
