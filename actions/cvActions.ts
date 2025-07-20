@@ -3,7 +3,6 @@
 import { z } from 'zod';
 import { actionClient } from '@/lib/safe-action';
 import { openai } from '@/lib/openai';
-import pdfParse from 'pdf-parse';
 
 export const uploadCVAction = actionClient
     .inputSchema(z.object({}))
@@ -62,6 +61,8 @@ export const analyzeCVAction = actionClient
             const analysis =
                 completion.choices[0]?.message?.content ||
                 'No analysis returned.';
+
+            console.log("CV Analysis:", analysis);
 
             return { analysis };
         } catch (error) {

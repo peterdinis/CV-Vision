@@ -56,6 +56,8 @@ const HeroWrapper: FC = () => {
     }
   };
 
+  console.log("analysis", analysis)
+
   return (
     <section className="container mx-auto mt-20 px-6 py-8">
       <div className="mx-auto max-w-6xl">
