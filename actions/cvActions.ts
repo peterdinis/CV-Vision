@@ -1,13 +1,9 @@
 'use server';
 
-import { z } from 'zod';
 import { actionClient } from '@/lib/safe-action';
 import { openai } from '@/lib/openai';
 import { extractTextFromPDF } from './utils/pdfHelperFunctions';
-
-const cvSchema = z.object({
-  file: z.custom<File>((val) => val instanceof File, 'Expected a File'),
-});
+import { cvSchema } from '@/schemas/cvSchema';
 
 export const analyzeAndUploadCVAction = actionClient
   .inputSchema(cvSchema)
