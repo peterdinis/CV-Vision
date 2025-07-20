@@ -16,6 +16,7 @@ const HeroWrapper: FC = () => {
 
   const { execute: analyzeCV, status: analyzingStatus } = useAction(analyzeCVAction, {
     onSuccess: (data) => {
+      console.log("Analysis Result:", data);
       setAnalysis(data.data.analysis);
       toast.success('✅ CV analysis complete!');
     },
@@ -26,13 +27,18 @@ const HeroWrapper: FC = () => {
     const formData = new FormData();
     formData.append('file', file);
 
+    console.log("Extracting text from file:", file.name);
+
     const res = await fetch('/api/extract-text', {
       method: 'POST',
       body: formData,
     });
 
+    console.log("Response from text extraction:", res.json().then((res) => res));
+
     if (!res.ok) {
       const { error } = await res.json();
+      console.log("Error extracting text:", error);
       throw new Error(error || 'Failed to extract text');
     }
 
@@ -42,11 +48,12 @@ const HeroWrapper: FC = () => {
 
   const handleUploadAndAnalyze = async () => {
     if (!selectedFile) return;
-
+    console.log("Selected file for analysis:", selectedFile.name);
     toast.message('📄 Extracting text from resume...');
     try {
       setIsExtracting(true);
       const extractedText = await extractText(selectedFile);
+      console.log("Extracted Text:", extractedText);
       toast.success('📝 Text extracted successfully!');
       await analyzeCV({ content: extractedText });
     } catch (err) {
@@ -55,8 +62,6 @@ const HeroWrapper: FC = () => {
       setIsExtracting(false);
     }
   };
-
-  console.log("analysis", analysis)
 
   return (
     <section className="container mx-auto mt-20 px-6 py-8">

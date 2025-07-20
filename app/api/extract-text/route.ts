@@ -1,4 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
+import PDFParser from 'pdf2json';
+
+function parsePDF(buffer: Buffer): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const pdfParser = new PDFParser();
+
+    pdfParser.on('pdfParser_dataError', err => reject(err.parserError));
+    pdfParser.on('pdfParser_dataReady', pdfData => {
+      let extractedText = '';
+      
+      const pages = (pdfData as any)?.Pages || (pdfData as any)?.formImage?.Pages;
+
+      if (!Array.isArray(pages)) {
+        return reject('No pages found in PDF data');
+      }
+
+      for (const page of pages) {
+        for (const textItem of page.Texts) {
+          for (const subItem of textItem.R) {
+            extractedText += decodeURIComponent(subItem.T) + ' ';
+          }
+          extractedText += '\n';
+        }
+      }
+
+      resolve(extractedText.trim());
+    });
+
+    pdfParser.parseBuffer(buffer);
+  });
+}
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
@@ -10,71 +41,60 @@ export async function POST(req: NextRequest) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  // Nepriečiný pokus o získanie textu z PDF (nie je to parsing)
-  const rawText = buffer.toString('utf-8');
-
-  const possibleText = rawText
-    .split('\n')
-    .filter(line => line.trim().length > 0 && /[a-zA-Z]/.test(line))
-    .join('\n');
-
-  console.log("Extracted Text:", possibleText);
-
-  if (!possibleText || possibleText.length < 50) {
-    return NextResponse.json(
-      { error: 'Text extraction failed or file is mostly empty.' },
-      { status: 400 }
-    );
-  }
-
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
-  if (!OPENAI_API_KEY) {
-    return NextResponse.json(
-      { error: 'OpenAI API key not configured.' },
-      { status: 500 }
-    );
-  }
-
   try {
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const text = await parsePDF(buffer);
+
+    if (!text || text.length < 50) {
+      return NextResponse.json({ error: 'PDF content is too short or empty' }, { status: 400 });
+    }
+
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+    if (!OPENAI_API_KEY) {
+      return NextResponse.json(
+        { error: 'OpenAI API key not configured.' },
+        { status: 500 }
+      );
+    }
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: 'You are an assistant that analyzes CVs and extracts key information.',
+            content:
+              'You are a helpful assistant that analyzes resumes and summarizes key information like name, contact, education, experience, and skills.',
           },
           {
             role: 'user',
-            content: `Analyze the following CV text and provide a short summary:\n\n${possibleText}`,
+            content: `Here is a resume:\n\n${text}\n\nPlease provide a structured summary.`,
           },
         ],
         max_tokens: 500,
       }),
     });
 
-    if (!openAIResponse.ok) {
-      const errorData = await openAIResponse.json();
-      console.error('OpenAI API error:', errorData);
-      return NextResponse.json({ error: 'OpenAI API request failed.' }, { status: 500 });
+    if (!response.ok) {
+      const err = await response.text();
+      console.error('OpenAI error:', err);
+      return NextResponse.json({ error: 'OpenAI API request failed' }, { status: 500 });
     }
 
-    const openAIData = await openAIResponse.json();
-
-    const summary = openAIData.choices?.[0]?.message?.content || 'No summary generated';
+    const data = await response.json();
+    const summary = data.choices?.[0]?.message?.content || 'No summary available';
 
     return NextResponse.json({
-      extractedText: possibleText,
+      extractedText: text,
       summary,
     });
-  } catch (error) {
-    console.error('OpenAI request error:', error);
-    return NextResponse.json({ error: 'Failed to call OpenAI API' }, { status: 500 });
+  } catch (err) {
+    console.error('Error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
