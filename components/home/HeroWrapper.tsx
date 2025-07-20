@@ -18,56 +18,72 @@ const HeroWrapper: FC = () => {
         analyzeCVAction,
         {
             onSuccess: (data) => {
-                console.log('Analysis Result:', data);
+                console.log('[analyzeCV] Success:', data);
                 setAnalysis(data.data.analysis);
                 toast.success('✅ CV analysis complete!');
             },
-            onError: (err) => toast.error('❌ CV analysis failed: ' + err),
+            onError: (err) => {
+                console.error('[analyzeCV] Error:', err);
+                toast.error('❌ CV analysis failed: ' + err);
+            },
         }
     );
 
     const extractText = async (file: File) => {
+        console.log('[extractText] Start extracting text from file:', file.name);
         const formData = new FormData();
         formData.append('file', file);
-
-        console.log('Extracting text from file:', file.name);
 
         const res = await fetch('/api/extract-text', {
             method: 'POST',
             body: formData,
         });
 
-        console.log(
-            'Response from text extraction:',
-            res.json().then((res) => res)
-        );
+        console.log('[extractText] Response status:', res.status);
+
+        // Warning: can't log res.json() twice; clone the response for logging
+        const resClone = res.clone();
+        try {
+            const json = await resClone.json();
+            console.log('[extractText] Response JSON:', json);
+        } catch (e) {
+            console.error('[extractText] Failed to parse JSON response:', e);
+        }
 
         if (!res.ok) {
-            const { error } = await res.json();
-            console.log('Error extracting text:', error);
-            throw new Error(error || 'Failed to extract text');
+            const errorData = await res.json();
+            console.error('[extractText] Error extracting text:', errorData.error);
+            throw new Error(errorData.error || 'Failed to extract text');
         }
 
         const data = await res.json();
+        console.log('[extractText] Extracted text length:', data.text?.length);
         return data.text as string;
     };
 
     const handleUploadAndAnalyze = async () => {
-        if (!selectedFile) return;
-        console.log('Selected file for analysis:', selectedFile.name);
+        if (!selectedFile) {
+            console.warn('[handleUploadAndAnalyze] No file selected');
+            return;
+        }
+        console.log('[handleUploadAndAnalyze] Selected file:', selectedFile.name);
         toast.message('📄 Extracting text from resume...');
         try {
             setIsExtracting(true);
             const extractedText = await extractText(selectedFile);
-            console.log('Extracted Text:', extractedText);
+            console.log('[handleUploadAndAnalyze] Extracted Text:', extractedText);
             toast.success('📝 Text extracted successfully!');
             await analyzeCV({ content: extractedText });
         } catch (err) {
+            console.error('[handleUploadAndAnalyze] Error:', err);
             toast.error((err as Error).message || '❌ Error extracting text');
         } finally {
             setIsExtracting(false);
+            console.log('[handleUploadAndAnalyze] Extraction finished');
         }
     };
+
+    console.log('[HeroWrapper] Render', { selectedFile, isExtracting, analyzingStatus });
 
     return (
         <section className='container mx-auto mt-20 px-6 py-8'>
@@ -100,8 +116,14 @@ const HeroWrapper: FC = () => {
 
                         <FileUploader
                             selectedFile={selectedFile}
-                            onFileSelect={setSelectedFile}
-                            onRemoveFile={() => setSelectedFile(null)}
+                            onFileSelect={(file) => {
+                                console.log('[FileUploader] File selected:', file?.name);
+                                setSelectedFile(file);
+                            }}
+                            onRemoveFile={() => {
+                                console.log('[FileUploader] File removed');
+                                setSelectedFile(null);
+                            }}
                         />
 
                         {selectedFile && (
