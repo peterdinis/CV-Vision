@@ -2,99 +2,113 @@ import { NextRequest, NextResponse } from 'next/server';
 import PDFParser from 'pdf2json';
 
 function parsePDF(buffer: Buffer): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const pdfParser = new PDFParser();
+    return new Promise((resolve, reject) => {
+        const pdfParser = new PDFParser();
 
-    pdfParser.on('pdfParser_dataError', err => reject(err.parserError));
-    pdfParser.on('pdfParser_dataReady', pdfData => {
-      let extractedText = '';
-      
-      const pages = (pdfData as any)?.Pages || (pdfData as any)?.formImage?.Pages;
+        pdfParser.on('pdfParser_dataError', (err) => reject(err.parserError));
+        pdfParser.on('pdfParser_dataReady', (pdfData) => {
+            let extractedText = '';
 
-      if (!Array.isArray(pages)) {
-        return reject('No pages found in PDF data');
-      }
+            const pages =
+                (pdfData as any)?.Pages || (pdfData as any)?.formImage?.Pages;
 
-      for (const page of pages) {
-        for (const textItem of page.Texts) {
-          for (const subItem of textItem.R) {
-            extractedText += decodeURIComponent(subItem.T) + ' ';
-          }
-          extractedText += '\n';
-        }
-      }
+            if (!Array.isArray(pages)) {
+                return reject('No pages found in PDF data');
+            }
 
-      resolve(extractedText.trim());
+            for (const page of pages) {
+                for (const textItem of page.Texts) {
+                    for (const subItem of textItem.R) {
+                        extractedText += decodeURIComponent(subItem.T) + ' ';
+                    }
+                    extractedText += '\n';
+                }
+            }
+
+            resolve(extractedText.trim());
+        });
+
+        pdfParser.parseBuffer(buffer);
     });
-
-    pdfParser.parseBuffer(buffer);
-  });
 }
 
 export async function POST(req: NextRequest) {
-  const formData = await req.formData();
-  const file = formData.get('file') as File;
+    const formData = await req.formData();
+    const file = formData.get('file') as File;
 
-  if (!file || file.type !== 'application/pdf') {
-    return NextResponse.json({ error: 'Invalid file' }, { status: 400 });
-  }
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  try {
-    const text = await parsePDF(buffer);
-
-    if (!text || text.length < 50) {
-      return NextResponse.json({ error: 'PDF content is too short or empty' }, { status: 400 });
+    if (!file || file.type !== 'application/pdf') {
+        return NextResponse.json({ error: 'Invalid file' }, { status: 400 });
     }
 
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    const buffer = Buffer.from(await file.arrayBuffer());
 
-    if (!OPENAI_API_KEY) {
-      return NextResponse.json(
-        { error: 'OpenAI API key not configured.' },
-        { status: 500 }
-      );
+    try {
+        const text = await parsePDF(buffer);
+
+        if (!text || text.length < 50) {
+            return NextResponse.json(
+                { error: 'PDF content is too short or empty' },
+                { status: 400 }
+            );
+        }
+
+        const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+        if (!OPENAI_API_KEY) {
+            return NextResponse.json(
+                { error: 'OpenAI API key not configured.' },
+                { status: 500 }
+            );
+        }
+
+        const response = await fetch(
+            'https://api.openai.com/v1/chat/completions',
+            {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${OPENAI_API_KEY}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o',
+                    messages: [
+                        {
+                            role: 'system',
+                            content:
+                                'You are a helpful assistant that analyzes resumes and summarizes key information like name, contact, education, experience, and skills.',
+                        },
+                        {
+                            role: 'user',
+                            content: `Here is a resume:\n\n${text}\n\nPlease provide a structured summary.`,
+                        },
+                    ],
+                    max_tokens: 500,
+                }),
+            }
+        );
+
+        if (!response.ok) {
+            const err = await response.text();
+            console.error('OpenAI error:', err);
+            return NextResponse.json(
+                { error: 'OpenAI API request failed' },
+                { status: 500 }
+            );
+        }
+
+        const data = await response.json();
+        const summary =
+            data.choices?.[0]?.message?.content || 'No summary available';
+
+        return NextResponse.json({
+            extractedText: text,
+            summary,
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
     }
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are a helpful assistant that analyzes resumes and summarizes key information like name, contact, education, experience, and skills.',
-          },
-          {
-            role: 'user',
-            content: `Here is a resume:\n\n${text}\n\nPlease provide a structured summary.`,
-          },
-        ],
-        max_tokens: 500,
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      console.error('OpenAI error:', err);
-      return NextResponse.json({ error: 'OpenAI API request failed' }, { status: 500 });
-    }
-
-    const data = await response.json();
-    const summary = data.choices?.[0]?.message?.content || 'No summary available';
-
-    return NextResponse.json({
-      extractedText: text,
-      summary,
-    });
-  } catch (err) {
-    console.error('Error:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
 }

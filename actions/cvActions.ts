@@ -62,13 +62,13 @@ export const analyzeCVAction = actionClient
                 completion.choices[0]?.message?.content ||
                 'No analysis returned.';
 
-            console.log("CV Analysis:", analysis);
+            console.log('CV Analysis:', analysis);
 
             return { analysis };
         } catch (error) {
             throw new Error(
                 'Failed to analyze CV: ' +
-                (error instanceof Error ? error.message : String(error))
+                    (error instanceof Error ? error.message : String(error))
             );
         }
     });
