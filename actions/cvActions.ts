@@ -35,40 +35,45 @@ export const uploadCVAction = actionClient
     });
 
 export const analyzeCVAction = actionClient
-    .inputSchema(
-        z.object({
-            content: z.string().min(1, 'CV content is required'),
-        })
-    )
-    .action(async ({ parsedInput }) => {
-        try {
-            const completion = await openai.chat.completions.create({
-                model: 'gpt-4o-mini',
-                messages: [
-                    {
-                        role: 'system',
-                        content:
-                            'You are a helpful assistant that analyzes resumes and gives improvement suggestions.',
-                    },
-                    {
-                        role: 'user',
-                        content: `Please analyze the following resume text and provide feedback, pros, cons, and tips:\n\n${parsedInput}`,
-                    },
-                ],
-                temperature: 0.7,
-            });
+  .inputSchema(
+    z.object({
+      content: z.string().min(1, 'CV content is required'),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    console.log('[analyzeCVAction] Received input:', parsedInput);
+    const formData = new FormData();
+        const file = formData!.get('resume') as File | null;
+    try {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a helpful assistant that analyzes resumes and gives improvement suggestions.',
+          },
+          {
+            role: 'user',
+            content: `Please analyze the following resume text and provide feedback, pros, cons, and tips:\n\n${file?.text}`,
+          },
+        ],
+        temperature: 0.7,
+      });
 
-            const analysis =
-                completion.choices[0]?.message?.content ||
-                'No analysis returned.';
+      console.log('[analyzeCVAction] OpenAI raw response:', completion);
 
-            console.log('CV Analysis:', analysis);
+      const analysis =
+        completion.choices[0]?.message?.content || 'No analysis returned.';
 
-            return { analysis };
-        } catch (error) {
-            throw new Error(
-                'Failed to analyze CV: ' +
-                    (error instanceof Error ? error.message : String(error))
-            );
-        }
-    });
+      console.log('[analyzeCVAction] Parsed analysis:', analysis);
+
+      return { analysis };
+    } catch (error) {
+      console.error('[analyzeCVAction] Error during analysis:', error);
+      throw new Error(
+        'Failed to analyze CV: ' +
+          (error instanceof Error ? error.message : String(error))
+      );
+    }
+  });
