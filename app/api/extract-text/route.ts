@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // --- Tu pridáme volanie OpenAI na analýzu extrahovaného textu ---
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
   if (!OPENAI_API_KEY) {
@@ -45,7 +44,7 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',  // alebo iný dostupný model
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
