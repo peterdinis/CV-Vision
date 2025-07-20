@@ -48,15 +48,25 @@ const HeroWrapper: FC = () => {
                         Analyze Your Resume with AI
                     </h1>
                     <p className='text-muted-foreground mx-auto max-w-2xl text-lg'>
-                        Upload your resume and get instant feedback with detailed analysis, improvement suggestions, and professional tips.
+                        Upload your resume and get instant feedback with
+                        detailed analysis, improvement suggestions, and
+                        professional tips.
                     </p>
                 </div>
 
                 <div className='grid gap-8 lg:grid-cols-2'>
-                    <div className='animate-slide-up space-y-6' style={{ animationDelay: '0.2s' }}>
+                    <div
+                        className='animate-slide-up space-y-6'
+                        style={{ animationDelay: '0.2s' }}
+                    >
                         <div>
-                            <h2 className='mb-2 text-2xl font-bold'>Upload Resume</h2>
-                            <p className='text-muted-foreground'>Supports PDF files. Get detailed analysis instantly.</p>
+                            <h2 className='mb-2 text-2xl font-bold'>
+                                Upload Resume
+                            </h2>
+                            <p className='text-muted-foreground'>
+                                Supports PDF files. Get detailed analysis
+                                instantly.
+                            </p>
                         </div>
 
                         <FileUploader
@@ -82,24 +92,49 @@ const HeroWrapper: FC = () => {
                         )}
                     </div>
 
-                    <div className='animate-slide-up space-y-6' style={{ animationDelay: '0.4s' }}>
+                    <div
+                        className='animate-slide-up space-y-6'
+                        style={{ animationDelay: '0.4s' }}
+                    >
                         <div className='from-muted/30 to-muted/10 border-muted-foreground/20 animate-scale-in rounded-2xl border-2 border-dashed bg-gradient-to-br p-8 text-center'>
                             <Brain className='text-muted-foreground mx-auto mb-4 h-16 w-16 animate-pulse' />
-                            <h3 className='mb-2 text-xl font-semibold'>Ready to Analyze</h3>
-                            <p className='text-muted-foreground mb-4'>Upload your resume to get started with AI-powered analysis</p>
+                            <h3 className='mb-2 text-xl font-semibold'>
+                                Ready to Analyze
+                            </h3>
+                            <p className='text-muted-foreground mb-4'>
+                                Upload your resume to get started with
+                                AI-powered analysis
+                            </p>
 
                             {analysis && (
                                 <div className='bg-muted text-foreground rounded p-4 text-left text-sm whitespace-pre-wrap'>
-                                    <h4 className='mb-2 font-semibold'>Analysis Result:</h4>
+                                    <h4 className='mb-2 font-semibold'>
+                                        Analysis Result:
+                                    </h4>
                                     {analysis}
                                 </div>
                             )}
 
                             {!analysis && (
                                 <div className='flex flex-wrap justify-center gap-2 text-sm'>
-                                    <Badge variant='default' className='rounded-full px-3 py-1 text-sky-100 dark:text-black'>Pros & Cons</Badge>
-                                    <Badge variant='destructive' className='rounded-full px-3 py-1 text-sky-100 dark:text-black'>Expert Tips</Badge>
-                                    <Badge variant='outline' className='rounded-full px-3 py-1 text-black dark:text-white'>Score Rating</Badge>
+                                    <Badge
+                                        variant='default'
+                                        className='rounded-full px-3 py-1 text-sky-100 dark:text-black'
+                                    >
+                                        Pros & Cons
+                                    </Badge>
+                                    <Badge
+                                        variant='destructive'
+                                        className='rounded-full px-3 py-1 text-sky-100 dark:text-black'
+                                    >
+                                        Expert Tips
+                                    </Badge>
+                                    <Badge
+                                        variant='outline'
+                                        className='rounded-full px-3 py-1 text-black dark:text-white'
+                                    >
+                                        Score Rating
+                                    </Badge>
                                 </div>
                             )}
                         </div>
