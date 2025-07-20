@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pdfParse from 'pdf-parse';
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
@@ -10,7 +9,11 @@ export async function POST(req: NextRequest) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const data = await pdfParse(buffer);
 
-  return NextResponse.json({ text: data.text });
+  const rawText = buffer.toString('latin1');
+  
+  const matches = [...rawText.matchAll(/\(([^)]+)\)/g)];
+  const extractedText = matches.map((m) => m[1]).join(' ');
+
+  return NextResponse.json({ text: extractedText });
 }
