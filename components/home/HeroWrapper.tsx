@@ -44,7 +44,7 @@ const HeroWrapper: FC = () => {
         <section className='container mx-auto mt-20 px-6 py-8'>
             <div className='mx-auto max-w-6xl'>
                 <div className='animate-fade-in mb-8 text-center'>
-                    <h1 className='from-primary to-accent mb-4 bg-gradient-to-r bg-clip-text text-3xl font-bold text-transparent md:text-4xl'>
+                    <h1 className='from-primary to-red-800 via-orange-900 mb-4 bg-gradient-to-r bg-clip-text text-3xl font-bold text-transparent md:text-4xl'>
                         Analyze Your Resume with AI
                     </h1>
                     <p className='text-muted-foreground mx-auto max-w-2xl text-lg'>
