@@ -48,7 +48,7 @@ const HeroWrapper: FC = () => {
 
         try {
             toast.message('📄 Uploading and analyzing resume...');
-            await analyzeCV({ file: selectedFile });
+            analyzeCV({ file: selectedFile });
         } catch (err) {
             toast.error((err as Error).message || '❌ Error uploading CV');
         }

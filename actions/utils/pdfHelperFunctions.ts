@@ -1,18 +1,5 @@
+import { ParsedPDFData } from '@/types/pdfTypes';
 import PDFParser from 'pdf2json';
-
-type PDFTextItem = {
-    R: {
-        T: string;
-    }[];
-};
-
-type PDFPage = {
-    Texts: PDFTextItem[];
-};
-
-type ParsedPDFData = {
-    Pages: PDFPage[];
-};
 
 export function extractTextFromPDF(buffer: Buffer): Promise<string> {
     return new Promise((resolve, reject) => {
