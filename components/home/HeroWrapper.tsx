@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import { FileUploader } from '../uploads/FileUploader';
 import { analyzeAndUploadCVAction } from '@/actions/cvActions';
 import { Badge } from '../ui/badge';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/framer-variants';
 
 const HeroWrapper: FC = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -17,8 +19,8 @@ const HeroWrapper: FC = () => {
         analyzeAndUploadCVAction,
         {
             onSuccess: (data) => {
-                setAnalysis(data.data.analysis);
                 toast.success('✅ CV analysis complete!');
+                setAnalysis(data.data.analysis);
             },
             onError: (err) => {
                 toast.error('❌ CV analysis failed: ' + err);
@@ -34,7 +36,7 @@ const HeroWrapper: FC = () => {
 
         try {
             toast.message('📄 Uploading and analyzing resume...');
-            await analyzeCV({ file: selectedFile });
+            analyzeCV({ file: selectedFile });
         } catch (err) {
             toast.error((err as Error).message || '❌ Error uploading CV');
         }
@@ -43,8 +45,13 @@ const HeroWrapper: FC = () => {
     return (
         <section className='container mx-auto mt-20 px-6 py-8'>
             <div className='mx-auto max-w-6xl'>
-                <div className='animate-fade-in mb-8 text-center'>
-                    <h1 className='from-primary to-accent mb-4 bg-gradient-to-r bg-clip-text text-3xl font-bold text-transparent md:text-4xl'>
+                <motion.div
+                    variants={fadeUp}
+                    initial='hidden'
+                    animate='visible'
+                    className='mb-8 text-center'
+                >
+                    <h1 className='from-primary mb-4 bg-gradient-to-r via-orange-900 to-red-800 bg-clip-text text-3xl font-bold text-transparent md:text-4xl'>
                         Analyze Your Resume with AI
                     </h1>
                     <p className='text-muted-foreground mx-auto max-w-2xl text-lg'>
@@ -52,12 +59,15 @@ const HeroWrapper: FC = () => {
                         detailed analysis, improvement suggestions, and
                         professional tips.
                     </p>
-                </div>
+                </motion.div>
 
                 <div className='grid gap-8 lg:grid-cols-2'>
-                    <div
-                        className='animate-slide-up space-y-6'
-                        style={{ animationDelay: '0.2s' }}
+                    <motion.div
+                        custom={1}
+                        variants={fadeUp}
+                        initial='hidden'
+                        animate='visible'
+                        className='space-y-6'
                     >
                         <div>
                             <h2 className='mb-2 text-2xl font-bold'>
@@ -90,13 +100,16 @@ const HeroWrapper: FC = () => {
                                 </Button>
                             </div>
                         )}
-                    </div>
+                    </motion.div>
 
-                    <div
-                        className='animate-slide-up space-y-6'
-                        style={{ animationDelay: '0.4s' }}
+                    <motion.div
+                        custom={2}
+                        variants={fadeUp}
+                        initial='hidden'
+                        animate='visible'
+                        className='space-y-6'
                     >
-                        <div className='from-muted/30 to-muted/10 border-muted-foreground/20 animate-scale-in rounded-2xl border-2 border-dashed bg-gradient-to-br p-8 text-center'>
+                        <div className='from-muted/30 to-muted/10 border-muted-foreground/20 rounded-2xl border-2 border-dashed bg-gradient-to-br p-8 text-center'>
                             <Brain className='text-muted-foreground mx-auto mb-4 h-16 w-16 animate-pulse' />
                             <h3 className='mb-2 text-xl font-semibold'>
                                 Ready to Analyze
@@ -106,16 +119,19 @@ const HeroWrapper: FC = () => {
                                 AI-powered analysis
                             </p>
 
-                            {analysis && (
-                                <div className='bg-muted text-foreground rounded p-4 text-left text-sm whitespace-pre-wrap'>
+                            {analysis ? (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.4 }}
+                                    className='bg-muted text-foreground rounded p-4 text-left text-sm whitespace-pre-wrap'
+                                >
                                     <h4 className='mb-2 font-semibold'>
                                         Analysis Result:
                                     </h4>
                                     {analysis}
-                                </div>
-                            )}
-
-                            {!analysis && (
+                                </motion.div>
+                            ) : (
                                 <div className='flex flex-wrap justify-center gap-2 text-sm'>
                                     <Badge
                                         variant='default'
@@ -138,7 +154,7 @@ const HeroWrapper: FC = () => {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </section>
