@@ -8,20 +8,8 @@ import { toast } from 'sonner';
 import { FileUploader } from '../uploads/FileUploader';
 import { analyzeAndUploadCVAction } from '@/actions/cvActions';
 import { Badge } from '../ui/badge';
-import { motion, Variants } from 'framer-motion';
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.4, 0, 0.2, 1],
-    },
-  },
-};
-
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/framer-variants';
 
 const HeroWrapper: FC = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -63,7 +51,7 @@ const HeroWrapper: FC = () => {
                     animate='visible'
                     className='mb-8 text-center'
                 >
-                    <h1 className='from-primary to-red-800 via-orange-900 mb-4 bg-gradient-to-r bg-clip-text text-3xl font-bold text-transparent md:text-4xl'>
+                    <h1 className='from-primary mb-4 bg-gradient-to-r via-orange-900 to-red-800 bg-clip-text text-3xl font-bold text-transparent md:text-4xl'>
                         Analyze Your Resume with AI
                     </h1>
                     <p className='text-muted-foreground mx-auto max-w-2xl text-lg'>
