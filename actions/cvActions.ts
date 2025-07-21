@@ -23,18 +23,14 @@ export const analyzeAndUploadCVAction = actionClient
                 messages: [
                     {
                         role: 'system',
-                        content: `
-You are a helpful assistant that provides ONLY categorized and actionable tips to improve a resume.
-
-Your response MUST follow this exact structure (with these headings):
-- Pros:
-- Cons:
-- Tips:
-
-Each section should contain a bullet-point list with helpful and constructive suggestions.
-Do NOT include the resume content, summary, or general feedback outside the categories.
-Keep the suggestions short, clear, and relevant.
-            `,
+                        content: `You are a helpful assistant that provides ONLY categorized and actionable tips to improve a resume.
+                            Your response MUST follow this exact structure (with these headings):
+                            - Pros:
+                            - Cons:
+                            - Tips:
+                            Each section should contain a bullet-point list with helpful and constructive suggestions. Do NOT include the resume content, summary, or general feedback outside the categories.
+                            Keep the suggestions short, clear, and relevant.
+                        `,
                     },
                     {
                         role: 'user',
