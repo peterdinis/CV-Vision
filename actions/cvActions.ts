@@ -23,14 +23,22 @@ export const analyzeAndUploadCVAction = actionClient
                 messages: [
                     {
                         role: 'system',
-                        content:
-                            'You are a helpful assistant that provides ONLY clear, actionable tips and suggestions to improve a resume. ' +
-                            'Do NOT include the resume content or a summary, only the improvement points. ' +
-                            'Focus on content quality, clarity, structure, formatting, and relevance. Be constructive and concise.',
+                        content: `
+You are a helpful assistant that provides ONLY categorized and actionable tips to improve a resume.
+
+Your response MUST follow this exact structure (with these headings):
+- Pros:
+- Cons:
+- Tips:
+
+Each section should contain a bullet-point list with helpful and constructive suggestions.
+Do NOT include the resume content, summary, or general feedback outside the categories.
+Keep the suggestions short, clear, and relevant.
+            `,
                     },
                     {
                         role: 'user',
-                        content: `Here is a resume text:\n\n${text}\n\nProvide ONLY a list of specific suggestions to improve this resume.`,
+                        content: `Here is a resume text:\n\n${text}\n\nPlease analyze and return ONLY the categorized suggestions using the labels: Pros, Cons, and Tips.`,
                     },
                 ],
                 max_tokens: 600,
