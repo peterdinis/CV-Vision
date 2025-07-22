@@ -9,7 +9,7 @@ import { FileUploader } from '../uploads/FileUploader';
 import { analyzeAndUploadCVAction } from '@/actions/cvActions';
 import { Badge } from '../ui/badge';
 import { motion } from 'framer-motion';
-import { fadeUp } from '@/lib/framer-variants';
+import { fadeUp } from '@/lib/motion-variants';
 
 type AnalysisResult = {
   pros: string[];
