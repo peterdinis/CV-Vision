@@ -68,6 +68,11 @@ const HeroWrapper: FC = () => {
     }
   };
 
+  const cleanFileUploader = () => {
+    setSelectedFile(null)
+    setAnalysis(null)
+  }
+
   return (
     <section className='container mx-auto mt-20 px-6 py-8'>
       <div className='mx-auto max-w-6xl'>
@@ -103,7 +108,7 @@ const HeroWrapper: FC = () => {
             <FileUploader
               selectedFile={selectedFile}
               onFileSelect={setSelectedFile}
-              onRemoveFile={() => setSelectedFile(null)}
+              onRemoveFile={cleanFileUploader}
             />
 
             {selectedFile && (
