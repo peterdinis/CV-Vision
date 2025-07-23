@@ -1,6 +1,5 @@
+import { Badge } from "@/components/ui/badge";
 import { FC } from "react";
-import { de } from "zod/locales";
-import { Badge } from "../ui/badge";
 
 const HeroButtons: FC = () => {
     return (

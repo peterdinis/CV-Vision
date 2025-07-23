@@ -5,12 +5,13 @@ import { Brain, Loader2 } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { FileUploader } from '../uploads/FileUploader';
 import { analyzeAndUploadCVAction } from '@/actions/cvActions';
-import { Badge } from '../ui/badge';
 import { motion } from 'framer-motion';
 import { fadeUp } from '@/lib/motion-variants';
 import { parseAnalysis } from '@/utils/pdfAnalysis';
+import HeroButtons from './HeroButtons';
+import { FileUploader } from '@/components/uploads/FileUploader';
+import HeroHeader from './HeroHeader';
 
 const HeroWrapper: FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -51,21 +52,7 @@ const HeroWrapper: FC = () => {
   return (
     <section className='container mx-auto mt-20 px-6 py-8'>
       <div className='mx-auto max-w-6xl'>
-        <motion.div
-          variants={fadeUp}
-          initial='hidden'
-          animate='visible'
-          className='mb-8 text-center'
-        >
-          <h1 className='from-primary mb-4 bg-gradient-to-r via-orange-900 to-red-800 bg-clip-text text-3xl font-bold text-transparent md:text-4xl'>
-            Analyze Your Resume with AI
-          </h1>
-          <p className='text-muted-foreground mx-auto max-w-2xl text-lg'>
-            Upload your resume and get instant feedback with detailed analysis,
-            improvement suggestions, and professional tips.
-          </p>
-        </motion.div>
-
+        <HeroHeader />
         <div className='grid gap-8 lg:grid-cols-2'>
           <motion.div
             variants={fadeUp}
@@ -169,26 +156,7 @@ const HeroWrapper: FC = () => {
                   })()}
                 </motion.div>
               ) : (
-                <div className='flex flex-wrap justify-center gap-2 text-sm'>
-                  <Badge
-                    variant='default'
-                    className='rounded-full px-3 py-1 text-sky-100 dark:text-black'
-                  >
-                    Pros & Cons
-                  </Badge>
-                  <Badge
-                    variant='destructive'
-                    className='rounded-full px-3 py-1 text-sky-100 dark:text-black'
-                  >
-                    Expert Tips
-                  </Badge>
-                  <Badge
-                    variant='outline'
-                    className='rounded-full px-3 py-1 text-black dark:text-white'
-                  >
-                    Score Rating
-                  </Badge>
-                </div>
+                <HeroButtons />
               )}
             </div>
           </motion.div>
