@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { FC } from "react";
+import { Badge } from '@/components/ui/badge';
+import { FC } from 'react';
 
 const HeroButtons: FC = () => {
     return (
@@ -23,7 +23,7 @@ const HeroButtons: FC = () => {
                 Score Rating
             </Badge>
         </div>
-    )
-}
+    );
+};
 
 export default HeroButtons;

@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import { FC } from "react";
-import { motion } from "framer-motion";
-import { fadeUp } from "@/lib/motion-variants";
+import { FC } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/motion-variants';
 
 const HeroHeader: FC = () => {
     return (
@@ -16,11 +16,11 @@ const HeroHeader: FC = () => {
                 Analyze Your Resume with AI
             </h1>
             <p className='text-muted-foreground mx-auto max-w-2xl text-lg'>
-                Upload your resume and get instant feedback with detailed analysis,
-                improvement suggestions, and professional tips.
+                Upload your resume and get instant feedback with detailed
+                analysis, improvement suggestions, and professional tips.
             </p>
         </motion.div>
-    )
-}
+    );
+};
 
 export default HeroHeader;
