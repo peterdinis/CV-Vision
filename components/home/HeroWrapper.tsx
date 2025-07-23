@@ -10,32 +10,7 @@ import { analyzeAndUploadCVAction } from '@/actions/cvActions';
 import { Badge } from '../ui/badge';
 import { motion } from 'framer-motion';
 import { fadeUp } from '@/lib/motion-variants';
-
-type AnalysisResult = {
-  pros: string[];
-  cons: string[];
-  tips: string[];
-};
-
-const parseAnalysis = (text: string): AnalysisResult => {
-  const prosMatch = text.match(/Pros:\s*([\s\S]*?)(?=Cons:|Tips:|$)/i);
-  const consMatch = text.match(/Cons:\s*([\s\S]*?)(?=Pros:|Tips:|$)/i);
-  const tipsMatch = text.match(/Tips:\s*([\s\S]*?)(?=Pros:|Cons:|$)/i);
-
-  const extractList = (block?: string) =>
-    block
-      ? block
-          .split('\n')
-          .map((line) => line.replace(/^[-•*]\s*/, '').trim())
-          .filter(Boolean)
-      : [];
-
-  return {
-    pros: extractList(prosMatch?.[1]),
-    cons: extractList(consMatch?.[1]),
-    tips: extractList(tipsMatch?.[1]),
-  };
-};
+import { parseAnalysis } from '@/utils/pdfAnalysis';
 
 const HeroWrapper: FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -155,10 +130,10 @@ const HeroWrapper: FC = () => {
                       <>
                         {pros.length > 0 && (
                           <div>
-                            <h5 className='text-green-800 font-semibold mb-1'>
+                            <h5 className='text-green-500 dark:text-green-200 font-semibold mb-1'>
                               ✅ Pros:
                             </h5>
-                            <ul className='list-disc list-inside space-y-1 text-green-800'>
+                            <ul className='list-disc list-inside space-y-1 text-green-600 dark:text-green-300'>
                               {pros.map((item, idx) => (
                                 <li key={`pro-${idx}`}>{item}</li>
                               ))}
@@ -167,10 +142,10 @@ const HeroWrapper: FC = () => {
                         )}
                         {cons.length > 0 && (
                           <div>
-                            <h5 className='text-red-800 font-semibold mb-1'>
+                            <h5 className='text-red-500 dark:text-red-200 font-semibold mb-1'>
                               ❌ Cons:
                             </h5>
-                            <ul className='list-disc list-inside space-y-1 text-red-800'>
+                            <ul className='list-disc list-inside space-y-1 text-red-600 dark:text-red-300'>
                               {cons.map((item, idx) => (
                                 <li key={`con-${idx}`}>{item}</li>
                               ))}
@@ -179,10 +154,10 @@ const HeroWrapper: FC = () => {
                         )}
                         {tips.length > 0 && (
                           <div>
-                            <h5 className='text-orange-800 font-semibold mb-1'>
+                            <h5 className='text-orange-500 dark:text-orange-200 font-semibold mb-1'>
                               💡 Tips:
                             </h5>
-                            <ul className='list-disc list-inside space-y-1 text-orange-800'>
+                            <ul className='list-disc list-inside space-y-1 text-orange-600 dark:text-orange-300'>
                               {tips.map((item, idx) => (
                                 <li key={`tip-${idx}`}>{item}</li>
                               ))}
