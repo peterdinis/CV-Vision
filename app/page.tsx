@@ -1,5 +1,5 @@
-import HeroWrapper from '@/components/home/HeroWrapper';
-import SubMenu from '@/components/home/SubMenu';
+import HeroWrapper from '@/components/home/hero/HeroWrapper';
+import SubMenu from '@/components/home/menu/SubMenu';
 import { NextPage } from 'next';
 
 const Homepage: NextPage = () => {
