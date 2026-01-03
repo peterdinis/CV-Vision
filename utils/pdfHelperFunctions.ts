@@ -6,8 +6,7 @@ export function extractTextFromPDF(buffer: Buffer): Promise<string> {
         const pdfParser = new PDFParser();
 
         pdfParser.on('pdfParser_dataError', (err) => {
-            console.error('[PDF Parser] Error:', err.parserError);
-            reject(err.parserError);
+            reject(err);
         });
 
         pdfParser.on('pdfParser_dataReady', (pdfData: ParsedPDFData) => {
